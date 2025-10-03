@@ -1,5 +1,7 @@
 package com.codeBuddy.codeBuddy_Backend.Services;
 
+import com.codeBuddy.codeBuddy_Backend.DTOs.AuthRequest;
+import com.codeBuddy.codeBuddy_Backend.DTOs.AuthResponse;
 import com.codeBuddy.codeBuddy_Backend.DTOs.UserSignUpDTO;
 import com.codeBuddy.codeBuddy_Backend.Model.Users;
 import com.codeBuddy.codeBuddy_Backend.Repositories.EmailRepo;
@@ -7,6 +9,9 @@ import com.codeBuddy.codeBuddy_Backend.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,21 +23,14 @@ public class UserService {
     private UserRepo userRepo;
 
     @Autowired
-    private Users user;
-    String skillsArr[]={"React","Redux","JavaScript","SpringBoot","Java"};
-    String interestsArr[]={"Web Development","Frontend Development","React development","Java Development","Backend development"};
+    private AuthenticationManager authManager;
 
-//    public Users getUser() {
-//        user.setUsername("Krishnam2476");
-//        user.setName("Krishnam Soni");
-//        user.setEmail("sonikrishnam98@gmail.com");
-//        user.setBio("java Developer");
-//        user.setSkills(skillsArr);
-//        user.setInterests(interestsArr);
-//        user.setLocation("Bhopal,IN");
-//        return user;
-//
-//    }
+    @Autowired
+    private JWTService jwtService;
+
+    @Autowired
+    private Users user;
+
 
     public ResponseEntity<?> addUser(UserSignUpDTO userDetails) {
         String userEmail= userDetails.getEmail();
@@ -60,5 +58,21 @@ public class UserService {
        }
 
         return new ResponseEntity<>("Email not verified!, Please verify your email to Sign Up", HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<?> verifyUser(AuthRequest user){
+        Authentication authentication= authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword()));
+        Users authenticatedUser= (Users)authentication.getPrincipal();
+
+        if(authentication.isAuthenticated()){
+           String accessToken= jwtService.generateAccessToken(authenticatedUser);
+           String refreshtoken= jwtService.generateRefreshToken(authenticatedUser);
+
+           return new ResponseEntity<>(new AuthResponse(accessToken,refreshtoken),HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+
     }
 }

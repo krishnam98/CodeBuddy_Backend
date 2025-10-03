@@ -1,5 +1,6 @@
 package com.codeBuddy.codeBuddy_Backend.Controllers;
 
+import com.codeBuddy.codeBuddy_Backend.DTOs.AuthRequest;
 import com.codeBuddy.codeBuddy_Backend.DTOs.UserSignUpDTO;
 import com.codeBuddy.codeBuddy_Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,10 @@ public class UserController {
     private ResponseEntity<?> addUser(@RequestBody UserSignUpDTO userDetails){
         return userService.addUser(userDetails);
 
+    }
 
-
+    @PostMapping("/login")
+    private ResponseEntity<?> loginUser(@RequestBody AuthRequest authRequest){
+        return userService.verifyUser(authRequest);
     }
 }
