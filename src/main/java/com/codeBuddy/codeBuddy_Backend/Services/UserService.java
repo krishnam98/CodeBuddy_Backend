@@ -1,78 +1,53 @@
 package com.codeBuddy.codeBuddy_Backend.Services;
 
-import com.codeBuddy.codeBuddy_Backend.DTOs.AuthRequest;
-import com.codeBuddy.codeBuddy_Backend.DTOs.AuthResponse;
-import com.codeBuddy.codeBuddy_Backend.DTOs.UserSignUpDTO;
+
+import com.codeBuddy.codeBuddy_Backend.DTOs.UsersDTO;
 import com.codeBuddy.codeBuddy_Backend.Model.Users;
-import com.codeBuddy.codeBuddy_Backend.Repositories.EmailRepo;
 import com.codeBuddy.codeBuddy_Backend.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserService {
-    @Autowired
-    private EmailRepo emailRepo;
 
     @Autowired
     private UserRepo userRepo;
 
-    @Autowired
-    private AuthenticationManager authManager;
+    public List<UsersDTO> convertToUserDTO(List<Users> usersList){
+        List<UsersDTO> usersDTOList= new ArrayList<>();
+     for (Users user:usersList){
+         UsersDTO userDTO= new UsersDTO();
+         userDTO.setId(user.getId());
+         userDTO.setName(user.getName());
+         userDTO.setUsername(user.getUsername());
+         userDTO.setEmail(user.getEmail());
+         userDTO.setBio(user.getBio());
+         userDTO.setCollabs(user.getCollabs());
+         userDTO.setInterests(user.getInterests());
+         userDTO.setLocation(user.getLocation());
+         userDTO.setMobileNumber(user.getMobileNumber());
+         userDTO.setSkills(user.getSkills());
+         userDTO.setRating(user.getRating());
 
-    @Autowired
-    private JWTService jwtService;
+         usersDTOList.add(userDTO);
+     }
 
-    @Autowired
-    private Users user;
-
-
-    public ResponseEntity<?> addUser(UserSignUpDTO userDetails) {
-        String userEmail= userDetails.getEmail();
-
-       boolean exists= emailRepo.existsByEmail(userEmail);
-
-       if(exists){
-           try{
-               Users user= new Users();
-               user.setName(userDetails.getName());
-               user.setUsername(userDetails.getUsername());
-               user.setEmail(userDetails.getEmail());
-               user.setPassword(userDetails.getPassword());
-
-               userRepo.save(user);
-               return new ResponseEntity<>("User Added", HttpStatus.CREATED);
-
-           }
-           catch (Exception e){
-
-               System.out.println(e);
-               return new ResponseEntity<>("User Exists", HttpStatus.BAD_REQUEST);
-           }
-
-       }
-
-        return new ResponseEntity<>("Email not verified!, Please verify your email to Sign Up", HttpStatus.BAD_REQUEST);
+     return usersDTOList;
     }
 
-    public ResponseEntity<?> verifyUser(AuthRequest user){
-        Authentication authentication= authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword()));
-        Users authenticatedUser= (Users)authentication.getPrincipal();
-
-        if(authentication.isAuthenticated()){
-           String accessToken= jwtService.generateAccessToken(authenticatedUser);
-           String refreshtoken= jwtService.generateRefreshToken(authenticatedUser);
-
-           return new ResponseEntity<>(new AuthResponse(accessToken,refreshtoken),HttpStatus.OK);
+    public ResponseEntity<?> getUsers() {
+        try {
+            List<Users> usersList= userRepo.findAll();
+            return new ResponseEntity<>(convertToUserDTO(usersList), HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
 
     }
 }

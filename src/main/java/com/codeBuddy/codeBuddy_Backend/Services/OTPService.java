@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
+//---------Generates & Verifies OTP-------------------
 @Service
 public class OTPService {
     @Autowired

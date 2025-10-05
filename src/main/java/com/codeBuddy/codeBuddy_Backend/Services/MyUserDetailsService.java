@@ -1,12 +1,15 @@
 package com.codeBuddy.codeBuddy_Backend.Services;
 
+import com.codeBuddy.codeBuddy_Backend.Model.UserPrincipal;
 import com.codeBuddy.codeBuddy_Backend.Model.Users;
 import com.codeBuddy.codeBuddy_Backend.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MyUserDetailsService implements UserDetailsService {
 
     @Autowired
@@ -20,5 +23,7 @@ public class MyUserDetailsService implements UserDetailsService {
            System.out.println("user not found");
            throw new UsernameNotFoundException("user not found");
        }
+
+       return new UserPrincipal(user);
     }
 }
