@@ -3,6 +3,7 @@ package com.codeBuddy.codeBuddy_Backend.Services;
 import com.codeBuddy.codeBuddy_Backend.DTOs.AuthRequest;
 import com.codeBuddy.codeBuddy_Backend.DTOs.AuthResponse;
 import com.codeBuddy.codeBuddy_Backend.DTOs.UserSignUpDTO;
+import com.codeBuddy.codeBuddy_Backend.DTOs.UsersDTO;
 import com.codeBuddy.codeBuddy_Backend.Model.UserPrincipal;
 import com.codeBuddy.codeBuddy_Backend.Model.Users;
 import com.codeBuddy.codeBuddy_Backend.Repositories.EmailRepo;
@@ -38,6 +39,9 @@ public class AuthService {
 
     @Autowired
     private MyUserDetailsService myUserDetailsService;
+
+    @Autowired
+    private UserService userService;
 
     private BCryptPasswordEncoder encoder= new BCryptPasswordEncoder(12);
 
@@ -79,8 +83,11 @@ public class AuthService {
         if(authentication.isAuthenticated()){
            String accessToken= jwtService.generateAccessToken(authenticatedUser);
            String refreshtoken= jwtService.generateRefreshToken(authenticatedUser);
+           System.out.println(authenticatedUser);
+            UsersDTO usersDTO= userService.convertToSingleUserDTO(authenticatedUser);
 
-           return new ResponseEntity<>(new AuthResponse(accessToken,refreshtoken),HttpStatus.OK);
+
+           return new ResponseEntity<>(new AuthResponse(accessToken,refreshtoken,usersDTO),HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -116,7 +123,7 @@ public class AuthService {
                 String newAccessToken= jwtService.generateAccessToken(user);
 //-------------Sending new access Token------------------
 
-                return new ResponseEntity<>(Map.of("Access-Token",newAccessToken),HttpStatus.OK);
+                return new ResponseEntity<>(Map.of("accessToken",newAccessToken),HttpStatus.OK);
             }else {
                 return new ResponseEntity<>("Invalid Token!\nLogin Required ",HttpStatus.UNAUTHORIZED);
             }
