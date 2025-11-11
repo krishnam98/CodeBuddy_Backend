@@ -48,7 +48,10 @@ public class JWTService {
     }
 
     public String generateRefreshToken(Users user){
-        return buildToken(new HashMap<>(), user.getUsername(), REFRESH_TOKEN_EXPIRATION);
+        HashMap <String, Object> claims= new HashMap<>();
+        claims.put("id",user.getId());
+        claims.put("username",user.getUsername());
+        return buildToken(claims, user.getUsername(), REFRESH_TOKEN_EXPIRATION);
     }
 
 //---------- Validating Token-------------------

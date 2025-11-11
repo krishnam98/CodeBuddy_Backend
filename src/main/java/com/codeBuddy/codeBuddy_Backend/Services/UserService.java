@@ -2,6 +2,7 @@ package com.codeBuddy.codeBuddy_Backend.Services;
 
 
 import com.codeBuddy.codeBuddy_Backend.DTOs.UsersDTO;
+import com.codeBuddy.codeBuddy_Backend.Model.UserPrincipal;
 import com.codeBuddy.codeBuddy_Backend.Model.Users;
 import com.codeBuddy.codeBuddy_Backend.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,18 +83,38 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<?> updateUsersPersonalInfo(UsersDTO user) {
-        System.out.println("eneterd Backend");
-        Optional optional= userRepo.findById(user.getId());
+    public ResponseEntity<?> updateUsersPersonalInfo(Long id,UsersDTO user, UserPrincipal userPrincipal) {
+        System.out.println("entered Backend");
+        System.out.println(userPrincipal.getUsername());
+        System.out.println(userPrincipal.getPassword());
+        if(userPrincipal.getUser().getId()!=id){
+            return new ResponseEntity<>("Not Authorised",HttpStatus.UNAUTHORIZED);
+        }
+        Optional optional= userRepo.findById(id);
 
         if(optional.isPresent()){
             try {
                 Users optionalUser= (Users)optional.get();
-                optionalUser.setName(user.getName());
-                optionalUser.setUsername(user.getUsername());
-                optionalUser.setMobileNumber(user.getMobileNumber());
-                optionalUser.setLocation((user.getLocation()));
-                optionalUser.setBio(user.getBio());
+                if (user.getName() != null && !user.getName().isEmpty()) {
+                    optionalUser.setName(user.getName());
+                }
+
+                if (user.getUsername() != null && !user.getUsername().isEmpty()) {
+                    optionalUser.setUsername(user.getUsername());
+                }
+
+                if (user.getMobileNumber() != null && !user.getMobileNumber().isEmpty()) {
+                    optionalUser.setMobileNumber(user.getMobileNumber());
+                }
+
+                if (user.getLocation() != null && !user.getLocation().isEmpty()) {
+                    optionalUser.setLocation(user.getLocation());
+                }
+
+                if (user.getBio() != null && !user.getBio().isEmpty()) {
+                    optionalUser.setBio(user.getBio());
+                }
+
                 System.out.println(optionalUser);
 
                 userRepo.save(optionalUser);
@@ -107,13 +129,19 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<?> updateSkills(Long id, List<String> userSkills) {
+    public ResponseEntity<?> updateSkills(Long id, List<String> userSkills, UserPrincipal userPrincipal) {
+        if(userPrincipal.getUser().getId()!= id){
+            return new ResponseEntity<>("Not Authorised",HttpStatus.UNAUTHORIZED);
+        }
         Optional optional= userRepo.findById(id);
 
         if(optional.isPresent()){
             try{
                 Users optionalUser= (Users) optional.get();
-                optionalUser.setSkills(userSkills);
+                if(userSkills!=null){
+                    optionalUser.setSkills(userSkills);
+                }
+
                 userRepo.save(optionalUser);
                 return new ResponseEntity<>(optionalUser,HttpStatus.OK);
             } catch (Exception e) {
@@ -124,13 +152,19 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<?> updateInterests(Long id, List<String> interests) {
+    public ResponseEntity<?> updateInterests(Long id, List<String> interests, UserPrincipal userPrincipal) {
+        if(userPrincipal.getUser().getId()!= id){
+            return new ResponseEntity<>("Not Authorised",HttpStatus.UNAUTHORIZED);
+        }
         Optional optional= userRepo.findById(id);
 
         if(optional.isPresent()){
             try{
                 Users optionalUser= (Users) optional.get();
-                optionalUser.setInterests(interests);
+
+                if(interests!=null){
+                    optionalUser.setInterests(interests);
+                }
 
                 userRepo.save(optionalUser);
                 return new ResponseEntity<>(optionalUser,HttpStatus.OK);
