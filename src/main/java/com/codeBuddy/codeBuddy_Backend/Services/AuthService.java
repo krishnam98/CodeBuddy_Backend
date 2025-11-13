@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -58,6 +60,8 @@ public class AuthService {
                user.setUsername(userDetails.getUsername());
                user.setEmail(userDetails.getEmail());
                user.setPassword(encoder.encode(userDetails.getPassword()));
+               LocalDate today= LocalDate.now();
+               user.setJoinDate(today);
 
 
                userRepo.save(user);

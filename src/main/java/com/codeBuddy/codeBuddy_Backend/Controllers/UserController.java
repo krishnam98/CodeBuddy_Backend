@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -27,6 +28,20 @@ public class UserController {
     @GetMapping("/getUser/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id){
         return userService.getUserById(id);
+
+    }
+
+    @PostMapping("/upload/profile/{id}")
+    public ResponseEntity<?> uploadProfileImage(@PathVariable Long id,@RequestParam("file") MultipartFile file,@AuthenticationPrincipal UserPrincipal userPrincipal){
+        System.out.println(file);
+        return userService.uploadProfile(id,file,userPrincipal);
+
+    }
+
+    @PostMapping("/upload/coverImage/{id}")
+    public ResponseEntity<?> uploadCoverImage(@PathVariable Long id, @RequestParam("file") MultipartFile file,@AuthenticationPrincipal UserPrincipal userPrincipal){
+        System.out.println(file);
+        return userService.uploadCoverImage(id,file,userPrincipal);
     }
 
     @PutMapping("/updatePersonalInfo/{id}")
@@ -44,6 +59,8 @@ public class UserController {
 
         return userService.updateInterests(id,interests,userPrincipal);
     }
+
+
 
 
 }

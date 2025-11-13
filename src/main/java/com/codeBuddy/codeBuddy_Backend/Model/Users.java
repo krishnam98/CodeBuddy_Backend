@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,9 @@ public class Users {
     private String mobileNumber;
     private String location;
     private String bio;
+    private String profileImgURL;
+    private String coverImgURL;
+    private LocalDate joinDate;
 
     @ElementCollection
     private List<String> skills= new ArrayList<>();

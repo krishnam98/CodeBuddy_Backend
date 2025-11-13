@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,9 @@ public class UserService {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private  ImageUploadService imageUploadService;
 
     public UsersDTO convertToSingleUserDTO(Users user){
         UsersDTO userDTO= new UsersDTO();
@@ -35,6 +40,10 @@ public class UserService {
         userDTO.setMobileNumber(user.getMobileNumber());
         userDTO.setSkills(user.getSkills());
         userDTO.setRating(user.getRating());
+        userDTO.setProfileImgURL(user.getProfileImgURL());
+        userDTO.setCoverImgURL(user.getCoverImgURL());
+        userDTO.setJoinDate(user.getJoinDate());
+
 
         return userDTO;
     }
@@ -54,6 +63,9 @@ public class UserService {
          userDTO.setMobileNumber(user.getMobileNumber());
          userDTO.setSkills(user.getSkills());
          userDTO.setRating(user.getRating());
+         userDTO.setProfileImgURL(user.getProfileImgURL());
+         userDTO.setCoverImgURL(user.getCoverImgURL());
+         userDTO.setJoinDate(user.getJoinDate());
 
          usersDTOList.add(userDTO);
      }
@@ -174,6 +186,59 @@ public class UserService {
             }
         }else{
             return new ResponseEntity<>("No User found by this ID", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<?> uploadProfile(Long id, MultipartFile file, UserPrincipal userPrincipal) {
+        if(userPrincipal.getUser().getId()!= id){
+            return new ResponseEntity<>("Not Authorised",HttpStatus.UNAUTHORIZED);
+        }
+        Optional optionalUser= userRepo.findById(id);
+        if(optionalUser.isPresent()){
+            try{
+                Users user= (Users) optionalUser.get();
+                System.out.println(user);
+                String profileURL=imageUploadService.uploadImage(file,"users_profile");
+                user.setProfileImgURL(profileURL);
+                userRepo.save(user);
+                UsersDTO usersDTO= convertToSingleUserDTO(user);
+                return new ResponseEntity<>(usersDTO,HttpStatus.OK);
+
+
+            } catch (Exception e) {
+                System.out.println(e);
+                return  new ResponseEntity<>("Cannot Upload at this moment", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }else{
+            return new ResponseEntity<>("No user found By this id", HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+
+    public ResponseEntity<?> uploadCoverImage(Long id, MultipartFile file, UserPrincipal userPrincipal) {
+        if(userPrincipal.getUser().getId()!=id){
+            return new ResponseEntity<>("Not Authorised", HttpStatus.UNAUTHORIZED);
+        }
+
+        Optional optionalUser=userRepo.findById(id);
+        if(optionalUser.isPresent()){
+            try{
+                Users user= (Users)optionalUser.get();
+                String coverImageURL= imageUploadService.uploadImage(file,"users_cover");
+                user.setCoverImgURL(coverImageURL);
+
+                userRepo.save(user);
+                UsersDTO usersDTO = convertToSingleUserDTO(user);
+
+                return new ResponseEntity<>(usersDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Cannot Upload Cover Image At this Moment",HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+        }
+        else{
+            return new ResponseEntity<>("No User Found By this Id",HttpStatus.BAD_REQUEST);
         }
     }
 }

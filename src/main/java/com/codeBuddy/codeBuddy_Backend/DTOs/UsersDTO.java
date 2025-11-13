@@ -3,7 +3,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -22,4 +25,7 @@ public class UsersDTO {
     private List<String> interests= new ArrayList<>();
     private float rating;
     private int collabs;
+    private String profileImgURL;
+    private String coverImgURL;
+    private LocalDate joinDate;
 }
