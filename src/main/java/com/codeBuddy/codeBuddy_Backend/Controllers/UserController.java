@@ -21,8 +21,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<?> getAllUsers(){
-        return userService.getUsers();
+    public ResponseEntity<?> getAllUsers(@AuthenticationPrincipal UserPrincipal userPrincipal){
+        return userService.getUsers(userPrincipal);
     }
 
     @GetMapping("/getUser/{id}")

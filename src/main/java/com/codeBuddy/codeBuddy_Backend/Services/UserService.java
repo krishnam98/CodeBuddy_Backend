@@ -73,10 +73,17 @@ public class UserService {
      return usersDTOList;
     }
 
-    public ResponseEntity<?> getUsers() {
+    public ResponseEntity<?> getUsers(UserPrincipal userPrincipal) {
         try {
             List<Users> usersList= userRepo.findAll();
-            return new ResponseEntity<>(convertToUserDTO(usersList), HttpStatus.OK);
+            List<Users> filteredList= new ArrayList<>();
+            for(Users user:usersList){
+                if(user.getId().equals(userPrincipal.getUser().getId())){
+                    continue;
+                }
+                filteredList.add(user);
+            }
+            return new ResponseEntity<>(convertToUserDTO(filteredList), HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

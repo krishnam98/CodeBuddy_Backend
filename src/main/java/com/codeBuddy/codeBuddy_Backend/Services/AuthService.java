@@ -71,7 +71,7 @@ public class AuthService {
            catch (Exception e){
 
                System.out.println(e);
-               return new ResponseEntity<>("User Exists", HttpStatus.BAD_REQUEST);
+               return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
            }
 
        }
