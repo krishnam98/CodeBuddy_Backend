@@ -31,6 +31,9 @@ public class Users {
     private String email;
     private String mobileNumber;
     private String location;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String bio;
     private String profileImgURL;
     private String coverImgURL;
